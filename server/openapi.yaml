@@ -1,0 +1,310 @@
+openapi: 3.1.0
+info:
+  title: IndustryConnect AI API
+  description: Multi-industry platform for pizza ordering, IT services, and fashion shopping
+  version: 1.0.0
+servers:
+  - url: https://t53ffb5r-3001.inc1.devtunnels.ms
+    description: DevTunnel for ChatGPT testing
+
+paths:
+  /api/pizza/menu:
+    post:
+      operationId: getPizzaMenu
+      summary: Get pizza restaurant menu
+      description: Returns the full menu of Pizza Paradise with available pizzas
+      tags:
+        - Pizza Restaurant
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Filter by pizza category (Classic, Meat, Vegetarian, Specialty)
+      responses:
+        '200':
+          description: Pizza menu retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  restaurant:
+                    type: string
+                  menu:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        price:
+                          type: string
+                        category:
+                          type: string
+                  delivery_time:
+                    type: string
+                  ui_component:
+                    type: string
+
+  /api/pizza/order:
+    post:
+      operationId: orderPizza
+      summary: Place a pizza order
+      description: Order a pizza from Pizza Paradise
+      tags:
+        - Pizza Restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pizza_id:
+                  type: integer
+                  description: ID of the pizza to order
+                pizza_name:
+                  type: string
+                  description: Name of the pizza to order
+                quantity:
+                  type: integer
+                  description: Number of pizzas to order
+                  default: 1
+              required:
+                - pizza_name
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  order_id:
+                    type: string
+                  quantity:
+                    type: integer
+                  estimated_delivery:
+                    type: string
+                  status:
+                    type: string
+
+  /api/troon/services:
+    post:
+      operationId: getTroonServices
+      summary: Get Troon Technologies services
+      description: Returns available IT and blockchain services from Troon Technologies
+      tags:
+        - Troon Technologies
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Filter by service category (Blockchain, AI/ML, Development)
+      responses:
+        '200':
+          description: Services retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  company:
+                    type: string
+                  tagline:
+                    type: string
+                  services:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        technologies:
+                          type: array
+                          items:
+                            type: string
+                        category:
+                          type: string
+                  ui_component:
+                    type: string
+
+  /api/troon/contact:
+    post:
+      operationId: contactTroon
+      summary: Contact Troon Technologies
+      description: Submit a contact form to Troon Technologies
+      tags:
+        - Troon Technologies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Contact person's name
+                email:
+                  type: string
+                  description: Contact email address
+                message:
+                  type: string
+                  description: Project details or inquiry message
+                service_type:
+                  type: string
+                  description: Type of service interested in
+              required:
+                - name
+                - email
+                - message
+      responses:
+        '200':
+          description: Contact form submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  contact_id:
+                    type: string
+                  status:
+                    type: string
+
+  /api/fashion/catalog:
+    post:
+      operationId: getFashionCatalog
+      summary: Get Fashion Factory catalog
+      description: Browse clothing items from Fashion Factory
+      tags:
+        - Fashion Factory
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Filter by category (Shirts, Pants)
+      responses:
+        '200':
+          description: Catalog retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  store:
+                    type: string
+                  tagline:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        price:
+                          type: string
+                        category:
+                          type: string
+                        sizes:
+                          type: array
+                          items:
+                            type: string
+                  total_items:
+                    type: integer
+                  ui_component:
+                    type: string
+
+  /api/fashion/purchase:
+    post:
+      operationId: purchaseFashionItem
+      summary: Purchase a clothing item
+      description: Buy clothing from Fashion Factory
+      tags:
+        - Fashion Factory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_id:
+                  type: integer
+                  description: ID of the item to purchase
+                item_name:
+                  type: string
+                  description: Name of the item to purchase
+                size:
+                  type: string
+                  description: Size selection
+                quantity:
+                  type: integer
+                  description: Quantity to purchase
+                  default: 1
+              required:
+                - item_name
+      responses:
+        '200':
+          description: Purchase completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  order_id:
+                    type: string
+                  size:
+                    type: string
+                  quantity:
+                    type: integer
+                  shipping_time:
+                    type: string
+                  status:
+                    type: string

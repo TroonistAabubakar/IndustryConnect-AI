@@ -1,0 +1,21 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "IndustryConnect AI",
+  "name_for_model": "industryconnect_ai",
+  "description_for_human": "Multi-industry platform for pizza ordering, IT services from Troon Technologies, and fashion shopping.",
+  "description_for_model": "IndustryConnect AI provides three main services: 1) Pizza Paradise - browse menu and order pizzas with delivery, 2) Troon Technologies - explore blockchain, AI/ML, and web development services with contact form, 3) Fashion Factory - shop premium clothing and apparel. Use getPizzaMenu and orderPizza for food orders, getTroonServices and contactTroon for IT inquiries, getFashionCatalog and purchaseFashionItem for clothing shopping.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://t53ffb5r-3001.inc1.devtunnels.ms/openapi.yaml"
+  },
+  "logo_url": "https://t53ffb5r-3001.inc1.devtunnels.ms/logo.png",
+  "contact_email": "support@industryconnect.ai",
+  "legal_info_url": "https://t53ffb5r-3001.inc1.devtunnels.ms/legal",
+  "ui": {
+    "type": "webview",
+    "url": "https://t53ffb5r-3001.inc1.devtunnels.ms"
+  }
+}
