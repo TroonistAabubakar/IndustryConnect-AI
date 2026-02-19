@@ -9,14 +9,6 @@ import { Pizza, Shirt } from 'lucide-react'
 
 type Industry = 'pizza' | 'fashion' | null
 
-declare global {
-  interface Window {
-    openai?: {
-      onToolResponse?: (callback: (data: any) => void) => void;
-    };
-  }
-}
-
 function HomeContent() {
   const searchParams = useSearchParams()
   const [activeIndustry, setActiveIndustry] = useState<Industry>(null)
