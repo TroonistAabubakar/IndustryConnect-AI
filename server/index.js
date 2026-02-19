@@ -1,10 +1,14 @@
 import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 
-const mainWidgetHtml = readFileSync("public/main-widget.html", "utf8");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const mainWidgetHtml = readFileSync(join(__dirname, "public/main-widget.html"), "utf8");
 
 // Pizza data
 const pizzas = [
