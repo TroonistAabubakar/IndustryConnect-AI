@@ -1,3 +1,4 @@
+import { baseURL } from "@/baseUrl";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 
@@ -21,18 +22,99 @@ const fashionItems = [
   { id: 6, name: 'Slim Fit Jeans', description: 'Modern slim fit with stretch comfort', price: '$89.99', icon: '👖', category: 'Pants' }
 ];
 
+type ContentWidget = {
+  id: string;
+  title: string;
+  templateUri: string;
+  invoking: string;
+  invoked: string;
+  htmlPath: string;
+  description: string;
+};
+
+function widgetMeta(widget: ContentWidget) {
+  return {
+    "openai/outputTemplate": widget.templateUri,
+    "openai/toolInvocation/invoking": widget.invoking,
+    "openai/toolInvocation/invoked": widget.invoked,
+    "openai/widgetAccessible": false,
+    "openai/resultCanProduceWidget": true,
+  } as const;
+}
+
+const getAppsSdkCompatibleHtml = async (baseUrl: string, path: string) => {
+  const result = await fetch(`${baseUrl}${path}`);
+  return await result.text();
+};
+
 const handler = createMcpHandler(async (server) => {
+  const widgets: Record<"pizza" | "fashion", ContentWidget> = {
+    pizza: {
+      id: "show_pizza_app",
+      title: "Show Pizza Paradise App",
+      templateUri: "ui://widget/pizza.html",
+      invoking: "Loading Pizza Paradise...",
+      invoked: "Pizza Paradise loaded",
+      htmlPath: "/widget/pizza",
+      description: "Displays the interactive Pizza Paradise ordering interface.",
+    },
+    fashion: {
+      id: "show_fashion_app",
+      title: "Show Fashion Factory App",
+      templateUri: "ui://widget/fashion.html",
+      invoking: "Loading Fashion Factory...",
+      invoked: "Fashion Factory loaded",
+      htmlPath: "/widget/fashion",
+      description: "Displays the interactive Fashion Factory shopping interface.",
+    },
+  };
+
+  // Register widget resources
+  for (const key of Object.keys(widgets) as Array<keyof typeof widgets>) {
+    const widget = widgets[key];
+    const html = await getAppsSdkCompatibleHtml(baseURL, widget.htmlPath);
+
+    server.registerResource(
+      `${key}-widget`,
+      widget.templateUri,
+      {
+        title: widget.title,
+        description: widget.description,
+        mimeType: "text/html+skybridge",
+        _meta: {
+          "openai/widgetDescription": widget.description,
+          "openai/widgetPrefersBorder": true,
+        },
+      },
+      async (uri) => ({
+        contents: [
+          {
+            uri: uri.href,
+            mimeType: "text/html+skybridge",
+            text: `<html>${html}</html>`,
+            _meta: {
+              "openai/widgetDescription": widget.description,
+              "openai/widgetPrefersBorder": true,
+            },
+          },
+        ],
+      })
+    );
+  }
+
   // Pizza Paradise Tools
   server.registerTool(
-    "show_pizza_app",
+    widgets.pizza.id,
     {
-      title: "Show Pizza Paradise App",
+      title: widgets.pizza.title,
       description: "Displays the interactive IndustryConnect AI application with Pizza Paradise tab. Use this when user asks about pizza, food, restaurant, ordering food, or wants to eat.",
       inputSchema: {},
+      _meta: widgetMeta(widgets.pizza),
     },
     async () => ({
       content: [{ type: "text", text: "🍕 Pizza Paradise - Delicious pizzas delivered to your door!" }],
-      structuredContent: { menu: pizzas }
+      structuredContent: { menu: pizzas },
+      _meta: widgetMeta(widgets.pizza),
     })
   );
 
@@ -42,10 +124,12 @@ const handler = createMcpHandler(async (server) => {
       title: "Get Pizza Menu",
       description: "Browse the pizza menu from Pizza Paradise",
       inputSchema: {},
+      _meta: widgetMeta(widgets.pizza),
     },
     async () => ({
       content: [{ type: "text", text: "🍕 Pizza Paradise Menu - Choose your favorite!" }],
-      structuredContent: { menu: pizzas }
+      structuredContent: { menu: pizzas },
+      _meta: widgetMeta(widgets.pizza),
     })
   );
 
@@ -58,27 +142,31 @@ const handler = createMcpHandler(async (server) => {
         pizza_name: z.string().min(1).describe("Name of the pizza to order"),
         quantity: z.number().optional().describe("Quantity to order"),
       },
+      _meta: widgetMeta(widgets.pizza),
     },
     async ({ pizza_name, quantity }) => {
       const qty = quantity ?? 1;
       return {
         content: [{ type: "text", text: `Order placed for ${qty}x ${pizza_name}! Estimated delivery: 30 minutes 🍕` }],
-        structuredContent: { menu: pizzas }
+        structuredContent: { menu: pizzas },
+        _meta: widgetMeta(widgets.pizza),
       };
     }
   );
 
   // Fashion Factory Tools
   server.registerTool(
-    "show_fashion_app",
+    widgets.fashion.id,
     {
-      title: "Show Fashion Factory App",
+      title: widgets.fashion.title,
       description: "Displays the interactive IndustryConnect AI application with Fashion Factory tab. Use this when user asks about fashion, clothing, apparel, shirts, pants, or wants to buy clothes.",
       inputSchema: {},
+      _meta: widgetMeta(widgets.fashion),
     },
     async () => ({
       content: [{ type: "text", text: "👔 Fashion Factory - Premium clothing and apparel for modern lifestyle" }],
-      structuredContent: { items: fashionItems }
+      structuredContent: { items: fashionItems },
+      _meta: widgetMeta(widgets.fashion),
     })
   );
 
@@ -90,6 +178,7 @@ const handler = createMcpHandler(async (server) => {
       inputSchema: {
         category: z.string().optional().describe("Category to filter by (Shirts or Pants)"),
       },
+      _meta: widgetMeta(widgets.fashion),
     },
     async ({ category }) => {
       let items = fashionItems;
@@ -98,7 +187,8 @@ const handler = createMcpHandler(async (server) => {
       }
       return {
         content: [{ type: "text", text: `Fashion Factory - Premium clothing collection 👔` }],
-        structuredContent: { items }
+        structuredContent: { items },
+        _meta: widgetMeta(widgets.fashion),
       };
     }
   );
@@ -113,13 +203,15 @@ const handler = createMcpHandler(async (server) => {
         size: z.string().optional().describe("Size of the item (S, M, L, XL)"),
         quantity: z.number().optional().describe("Quantity to purchase"),
       },
+      _meta: widgetMeta(widgets.fashion),
     },
     async ({ item_name, size, quantity }) => {
       const itemSize = size ?? "M";
       const qty = quantity ?? 1;
       return {
         content: [{ type: "text", text: `Purchase successful! Your ${item_name} (Size ${itemSize}) x${qty} will ship in 2-3 days 🎉` }],
-        structuredContent: { items: fashionItems }
+        structuredContent: { items: fashionItems },
+        _meta: widgetMeta(widgets.fashion),
       };
     }
   );
