@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizza Paradise</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #ea580c;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: #78716c;
+      font-size: 1.1rem;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      border: 2px solid #86efac;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .pizza-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .pizza-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+
+    .pizza-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .pizza-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .pizza-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #292524;
+      margin-bottom: 0.5rem;
+    }
+
+    .pizza-desc {
+      color: #78716c;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .pizza-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pizza-price {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #ea580c;
+    }
+
+    .order-btn {
+      background: linear-gradient(135deg, #ea580c, #dc2626);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .order-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🍕 Pizza Paradise</h1>
+      <p>Authentic Italian pizzas delivered fresh to your door</p>
+    </div>
+
+    <div id="successMessage" class="success-message"></div>
+
+    <div class="pizza-grid" id="pizzaGrid"></div>
+  </div>
+
+  <script>
+    const pizzas = [
+      {
+        id: 1,
+        name: 'Margherita Classic',
+        description: 'Fresh mozzarella, tomato sauce, basil',
+        price: '$12.99',
+        icon: '🍕'
+      },
+      {
+        id: 2,
+        name: 'Pepperoni Supreme',
+        description: 'Double pepperoni, extra cheese, Italian herbs',
+        price: '$15.99',
+        icon: '🍕'
+      },
+      {
+        id: 3,
+        name: 'Veggie Delight',
+        description: 'Bell peppers, mushrooms, olives, onions',
+        price: '$13.99',
+        icon: '🍕'
+      },
+      {
+        id: 4,
+        name: 'BBQ Chicken',
+        description: 'Grilled chicken, BBQ sauce, red onions',
+        price: '$16.99',
+        icon: '🍕'
+      }
+    ];
+
+    const grid = document.getElementById('pizzaGrid');
+    const successMsg = document.getElementById('successMessage');
+
+    function showSuccess(message) {
+      successMsg.textContent = message;
+      successMsg.style.display = 'block';
+      setTimeout(() => {
+        successMsg.style.display = 'none';
+      }, 3000);
+    }
+
+    function orderPizza(pizza) {
+      if (window.openai && window.openai.callTool) {
+        window.openai.callTool('order_pizza', { 
+          pizza_name: pizza.name,
+          quantity: 1 
+        })
+        .then(() => {
+          showSuccess(`Order placed for ${pizza.name}! Estimated delivery: 30 minutes`);
+        })
+        .catch(err => {
+          console.error('Error ordering pizza:', err);
+          showSuccess(`Order placed for ${pizza.name}! (Local mode)`);
+        });
+      } else {
+        showSuccess(`Order placed for ${pizza.name}! (Local mode)`);
+      }
+    }
+
+    function renderPizzas(pizzaList) {
+      grid.innerHTML = '';
+      pizzaList.forEach(pizza => {
+        const card = document.createElement('div');
+        card.className = 'pizza-card';
+        card.innerHTML = `
+          <div class="pizza-icon">${pizza.icon}</div>
+          <div class="pizza-name">${pizza.name}</div>
+          <div class="pizza-desc">${pizza.description}</div>
+          <div class="pizza-footer">
+            <div class="pizza-price">${pizza.price}</div>
+            <button class="order-btn" onclick="orderPizza(${JSON.stringify(pizza).replace(/"/g, '&quot;')})">
+              Order Now
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Listen for MCP updates
+    if (window.openai && window.openai.addEventListener) {
+      window.openai.addEventListener('structuredContent', (event) => {
+        if (event.data && event.data.menu) {
+          renderPizzas(event.data.menu);
+        }
+      });
+    }
+
+    // Initial render
+    renderPizzas(pizzas);
+
+    // Make orderPizza globally accessible
+    window.orderPizza = orderPizza;
+  </script>
+</body>
+</html>
