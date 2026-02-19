@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { createMcpHandler } from "mcp-handler";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 
@@ -20,98 +21,77 @@ const fashionItems = [
   { id: 6, name: 'Slim Fit Jeans', description: 'Modern slim fit with stretch comfort', price: '$89.99', icon: '👖', category: 'Pants' }
 ];
 
-const MCP_TOOLS = [
-  {
-    name: "show_pizza_app",
-    description: "Displays the interactive IndustryConnect AI application with Pizza Paradise tab. Use this when user asks about pizza, food, restaurant, ordering food, or wants to eat.",
-    inputSchema: {
-      type: "object",
-      properties: {},
+const handler = createMcpHandler(async (server) => {
+  // Pizza Paradise Tools
+  server.registerTool(
+    "show_pizza_app",
+    {
+      title: "Show Pizza Paradise App",
+      description: "Displays the interactive IndustryConnect AI application with Pizza Paradise tab. Use this when user asks about pizza, food, restaurant, ordering food, or wants to eat.",
+      inputSchema: {},
     },
-  },
-  {
-    name: "get_pizza_menu",
-    description: "Browse the pizza menu from Pizza Paradise",
-    inputSchema: {
-      type: "object",
-      properties: {},
-    },
-  },
-  {
-    name: "order_pizza",
-    description: "Place a pizza order from Pizza Paradise",
-    inputSchema: {
-      type: "object",
-      properties: {
-        pizza_name: { type: "string", description: "Name of the pizza to order" },
-        quantity: { type: "number", description: "Quantity to order" },
-      },
-      required: ["pizza_name"],
-    },
-  },
-  {
-    name: "show_fashion_app",
-    description: "Displays the interactive IndustryConnect AI application with Fashion Factory tab. Use this when user asks about fashion, clothing, apparel, shirts, pants, or wants to buy clothes.",
-    inputSchema: {
-      type: "object",
-      properties: {},
-    },
-  },
-  {
-    name: "get_fashion_catalog",
-    description: "Browse premium clothing and apparel from Fashion Factory",
-    inputSchema: {
-      type: "object",
-      properties: {
-        category: { type: "string", description: "Category to filter by" },
-      },
-    },
-  },
-  {
-    name: "purchase_fashion_item",
-    description: "Buy clothing items from Fashion Factory",
-    inputSchema: {
-      type: "object",
-      properties: {
-        item_name: { type: "string", description: "Name of the item to purchase" },
-        size: { type: "string", description: "Size of the item" },
-        quantity: { type: "number", description: "Quantity to purchase" },
-      },
-      required: ["item_name"],
-    },
-  },
-];
+    async () => ({
+      content: [{ type: "text", text: "🍕 Pizza Paradise - Delicious pizzas delivered to your door!" }],
+      structuredContent: { menu: pizzas }
+    })
+  );
 
-function handleToolCall(toolName: string, args: any) {
-  switch (toolName) {
-    case "show_pizza_app":
+  server.registerTool(
+    "get_pizza_menu",
+    {
+      title: "Get Pizza Menu",
+      description: "Browse the pizza menu from Pizza Paradise",
+      inputSchema: {},
+    },
+    async () => ({
+      content: [{ type: "text", text: "🍕 Pizza Paradise Menu - Choose your favorite!" }],
+      structuredContent: { menu: pizzas }
+    })
+  );
+
+  server.registerTool(
+    "order_pizza",
+    {
+      title: "Order Pizza",
+      description: "Place a pizza order from Pizza Paradise",
+      inputSchema: {
+        pizza_name: z.string().min(1).describe("Name of the pizza to order"),
+        quantity: z.number().optional().describe("Quantity to order"),
+      },
+    },
+    async ({ pizza_name, quantity }) => {
+      const qty = quantity ?? 1;
       return {
-        content: [{ type: "text", text: "🍕 Pizza Paradise - Delicious pizzas delivered to your door!" }],
+        content: [{ type: "text", text: `Order placed for ${qty}x ${pizza_name}! Estimated delivery: 30 minutes 🍕` }],
         structuredContent: { menu: pizzas }
       };
-    
-    case "get_pizza_menu":
-      return {
-        content: [{ type: "text", text: "🍕 Pizza Paradise Menu - Choose your favorite!" }],
-        structuredContent: { menu: pizzas }
-      };
-    
-    case "order_pizza":
-      const pizzaName = args?.pizza_name ?? "";
-      const qty = args?.quantity ?? 1;
-      return {
-        content: [{ type: "text", text: `Order placed for ${qty}x ${pizzaName}! Estimated delivery: 30 minutes 🍕` }],
-        structuredContent: { menu: pizzas }
-      };
-    
-    case "show_fashion_app":
-      return {
-        content: [{ type: "text", text: "👔 Fashion Factory - Premium clothing and apparel for modern lifestyle" }],
-        structuredContent: { items: fashionItems }
-      };
-    
-    case "get_fashion_catalog":
-      const category = args?.category;
+    }
+  );
+
+  // Fashion Factory Tools
+  server.registerTool(
+    "show_fashion_app",
+    {
+      title: "Show Fashion Factory App",
+      description: "Displays the interactive IndustryConnect AI application with Fashion Factory tab. Use this when user asks about fashion, clothing, apparel, shirts, pants, or wants to buy clothes.",
+      inputSchema: {},
+    },
+    async () => ({
+      content: [{ type: "text", text: "👔 Fashion Factory - Premium clothing and apparel for modern lifestyle" }],
+      structuredContent: { items: fashionItems }
+    })
+  );
+
+  server.registerTool(
+    "get_fashion_catalog",
+    {
+      title: "Get Fashion Catalog",
+      description: "Browse premium clothing and apparel from Fashion Factory",
+      inputSchema: {
+        category: z.string().optional().describe("Category to filter by (Shirts or Pants)"),
+      },
+    },
+    async ({ category }) => {
       let items = fashionItems;
       if (category) {
         items = fashionItems.filter(item => item.category.toLowerCase() === category.toLowerCase());
@@ -120,68 +100,30 @@ function handleToolCall(toolName: string, args: any) {
         content: [{ type: "text", text: `Fashion Factory - Premium clothing collection 👔` }],
         structuredContent: { items }
       };
-    
-    case "purchase_fashion_item":
-      const itemName = args?.item_name ?? "";
-      const size = args?.size ?? "M";
+    }
+  );
+
+  server.registerTool(
+    "purchase_fashion_item",
+    {
+      title: "Purchase Fashion Item",
+      description: "Buy clothing items from Fashion Factory",
+      inputSchema: {
+        item_name: z.string().min(1).describe("Name of the item to purchase"),
+        size: z.string().optional().describe("Size of the item (S, M, L, XL)"),
+        quantity: z.number().optional().describe("Quantity to purchase"),
+      },
+    },
+    async ({ item_name, size, quantity }) => {
+      const itemSize = size ?? "M";
+      const qty = quantity ?? 1;
       return {
-        content: [{ type: "text", text: `Purchase successful! Your ${itemName} (Size ${size}) will ship in 2-3 days 🎉` }],
+        content: [{ type: "text", text: `Purchase successful! Your ${item_name} (Size ${itemSize}) x${qty} will ship in 2-3 days 🎉` }],
         structuredContent: { items: fashionItems }
       };
-    
-    default:
-      throw new Error(`Unknown tool: ${toolName}`);
-  }
-}
-
-export async function GET(req: NextRequest) {
-  return NextResponse.json({
-    name: "industryconnect-ai",
-    version: "1.0.0",
-    description: "IndustryConnect AI MCP Server - Pizza Paradise & Fashion Factory",
-    tools: MCP_TOOLS
-  });
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    
-    // Handle MCP protocol requests
-    if (body.method === "tools/list") {
-      return NextResponse.json({
-        tools: MCP_TOOLS
-      });
     }
-    
-    if (body.method === "tools/call") {
-      const { name, arguments: args } = body.params;
-      const result = handleToolCall(name, args);
-      return NextResponse.json(result);
-    }
-    
-    // Default response
-    return NextResponse.json({
-      error: "Unknown method",
-      method: body.method
-    }, { status: 400 });
-    
-  } catch (error) {
-    console.error("MCP error:", error);
-    return NextResponse.json({
-      error: "Internal server error"
-    }, { status: 500 });
-  }
-}
+  );
+});
 
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE",
-      "Access-Control-Allow-Headers": "content-type, mcp-session-id",
-      "Access-Control-Expose-Headers": "Mcp-Session-Id",
-    },
-  });
-}
+export const GET = handler;
+export const POST = handler;
