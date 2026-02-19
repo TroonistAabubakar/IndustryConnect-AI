@@ -35,10 +35,10 @@ vercel --prod
 ### Step 3: Test Deployment
 ```bash
 # Test health check
-curl https://industryconnectapp-ai.vercel.app/
+curl https://industryconnect-app.vercel.app/
 
 # Test MCP endpoint
-curl https://industryconnectapp-ai.vercel.app/mcp
+curl https://industryconnect-app.vercel.app/mcp
 ```
 
 ---
@@ -69,12 +69,12 @@ export default async function handler(req, res) {
 
 **Backend:**
 ```
-https://industryconnectapp-ai.vercel.app
+https://industryconnect-app.vercel.app
 ```
 
 **MCP Endpoint:**
 ```
-https://industryconnectapp-ai.vercel.app/mcp
+https://industryconnect-app.vercel.app/mcp
 ```
 
 ---
@@ -91,7 +91,7 @@ https://industryconnectapp-ai.vercel.app/mcp
 
 ### Test in ChatGPT:
 1. Settings → Apps → Add Server
-2. **URL:** `https://industryconnectapp-ai.vercel.app/mcp`
+2. **URL:** `https://industryconnect-app.vercel.app/mcp`
 3. Test prompts:
    - "Show me the pizza app"
    - "I want to order pizza"

@@ -4,12 +4,12 @@
 
 **Backend (MCP Server):**
 ```
-https://industryconnectapp-ai.vercel.app
+https://industryconnect-app.vercel.app
 ```
 
 **MCP Endpoint (for ChatGPT):**
 ```
-https://industryconnectapp-ai.vercel.app/mcp
+https://industryconnect-app.vercel.app/mcp
 ```
 
 **Frontend (Next.js - Optional):**
@@ -23,7 +23,7 @@ https://industryconnect-ai.vercel.app
 
 ### Test Health Check
 ```bash
-curl https://industryconnectapp-ai.vercel.app/
+curl https://industryconnect-app.vercel.app/
 ```
 
 **Expected Response:**
@@ -33,7 +33,7 @@ IndustryConnect AI MCP Server
 
 ### Test MCP Endpoint
 ```bash
-curl https://industryconnectapp-ai.vercel.app/mcp
+curl https://industryconnect-app.vercel.app/mcp
 ```
 
 **Expected:** SSE stream or MCP server response (not 404)
@@ -55,7 +55,7 @@ curl https://industryconnectapp-ai.vercel.app/mcp
 2. Click **"Add Server"** or **"Connect MCP Server"**
 3. Enter:
    - **Name:** IndustryConnect AI
-   - **URL:** `https://industryconnectapp-ai.vercel.app/mcp`
+   - **URL:** `https://industryconnect-app.vercel.app/mcp`
    - **Type:** MCP Server
 4. Click **"Connect"** or **"Save"**
 5. **Refresh ChatGPT** page
@@ -134,7 +134,7 @@ vercel --prod
 1. Check browser console for errors (F12)
 2. Verify widget HTML is served correctly:
    ```bash
-   curl https://industryconnectapp-ai.vercel.app/public/main-widget.html
+   curl https://industryconnect-app.vercel.app/public/main-widget.html
    ```
 3. Check server logs in Vercel dashboard
 
@@ -166,7 +166,7 @@ Monitor your deployment:
 
 Before submitting to OpenAI:
 
-- [ ] Backend deployed: `https://industryconnectapp-ai.vercel.app`
+- [ ] Backend deployed: `https://industryconnect-app.vercel.app`
 - [ ] Health check works: Returns "IndustryConnect AI MCP Server"
 - [ ] MCP endpoint accessible: `/mcp` returns SSE stream
 - [ ] Tested in ChatGPT Developer Mode
@@ -186,7 +186,7 @@ Once all tests pass, use this URL for submission:
 
 **MCP Server URL:**
 ```
-https://industryconnectapp-ai.vercel.app/mcp
+https://industryconnect-app.vercel.app/mcp
 ```
 
 **App Name:** IndustryConnect AI
@@ -201,13 +201,13 @@ https://industryconnectapp-ai.vercel.app/mcp
 
 ```bash
 # Test health check
-curl https://industryconnectapp-ai.vercel.app/
+curl https://industryconnect-app.vercel.app/
 
 # Test MCP endpoint
-curl https://industryconnectapp-ai.vercel.app/mcp
+curl https://industryconnect-app.vercel.app/mcp
 
 # Test widget HTML
-curl https://industryconnectapp-ai.vercel.app/public/main-widget.html
+curl https://industryconnect-app.vercel.app/public/main-widget.html
 
 # Check deployment
 cd server

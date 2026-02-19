@@ -28,12 +28,12 @@ vercel --prod
 ### Step 3: Get Your Server URL
 After deployment, you'll get a URL like:
 ```
-https://industryconnectapp-ai.vercel.app
+https://industryconnect-app.vercel.app
 ```
 
 Your MCP endpoint will be:
 ```
-https://industryconnectapp-ai.vercel.app/mcp
+https://industryconnect-app.vercel.app/mcp
 ```
 
 ---
@@ -63,9 +63,9 @@ vercel --prod --name industryconnect-ai
 ### Option B: Keep Both Separate (Easier)
 
 - **Frontend:** `https://industryconnect-ai.vercel.app` (Next.js UI)
-- **Backend:** `https://industryconnectapp-ai.vercel.app` (MCP Server)
+- **Backend:** `https://industryconnect-app.vercel.app` (MCP Server)
 
-For OpenAI submission, use: `https://industryconnectapp-ai.vercel.app/mcp`
+For OpenAI submission, use: `https://industryconnect-app.vercel.app/mcp`
 
 ---
 
@@ -73,10 +73,10 @@ For OpenAI submission, use: `https://industryconnectapp-ai.vercel.app/mcp`
 
 ```bash
 # Test health check
-curl https://industryconnectapp-ai.vercel.app/
+curl https://industryconnect-app.vercel.app/
 
 # Test MCP endpoint
-curl https://industryconnectapp-ai.vercel.app/mcp
+curl https://industryconnect-app.vercel.app/mcp
 
 # Should return: SSE stream or MCP server response
 ```
@@ -89,7 +89,7 @@ After deploying, update your OpenAI submission with the correct URL:
 
 **MCP Server URL for OpenAI:**
 ```
-https://industryconnectapp-ai.vercel.app/mcp
+https://industryconnect-app.vercel.app/mcp
 ```
 
 OR (if you use Option A):
